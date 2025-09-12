@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timer con Reindirizzamento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body id="main-body" class="bg-gray-100 flex items-center justify-center transition-colors duration-1000 ease-in-out">
+
+    <!-- Contenitore principale per timer e pulsante -->
+    <div id="content-wrapper" class="text-center transition-opacity duration-500">
+        <!-- Timer per il countdown -->
+        <div id="timer" class="text-8xl font-mono font-bold text-gray-800 mb-8">
+            01:00
+        </div>
+
+        <!-- Pulsante per "uscire" prima del reindirizzamento -->
+        <button id="exit-button" class="px-8 py-4 bg-gray-800 text-white font-semibold rounded-xl shadow-lg hover:bg-black focus:outline-none focus:ring-4 focus:ring-gray-400 transition-all duration-300">
+            Esci ora
+        </button>
+    </div>
+
+    <script>
+        // --- SELEZIONE ELEMENTI ---
+        const bodyElement = document.getElementById('main-body');
+        const contentWrapper = document.getElementById('content-wrapper');
+        const timerElement = document.getElementById('timer');
+        const exitButton = document.getElementById('exit-button');
+
+        // --- VARIABILI DI STATO ---
+        let timeLeft = 60;
+        let timerInterval = null;
+        const redirectUrl = "https://example.com"; // Cambia con l'URL di destinazione
+
+        // Funzione per aggiornare la visualizzazione del timer
+        function updateTimerDisplay() {
+            const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+            const seconds = String(timeLeft % 60).padStart(2, '0');
+            timerElement.textContent = `${minutes}:${seconds}`;
+        }
+
+        // Funzione per avviare il countdown
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 60;
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    timerElement.textContent = "00:00";
+                    window.location.href = redirectUrl; // Reindirizzamento automatico
+                }
+            }, 1000);
+        }
+
+        // Se l'utente clicca "Esci ora", interrompi timer e reindirizza subito
+        function handleExitClick() {
+            clearInterval(timerInterval);
+            window.location.href = redirectUrl;
+        }
+
+        // --- EVENT LISTENERS ---
+        exitButton.addEventListener('click', handleExitClick);
+
+        // --- AVVIO ---
+        startTimer();
+    </script>
+
+</body>
+</html>
