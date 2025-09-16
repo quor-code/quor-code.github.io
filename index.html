@@ -3,81 +3,294 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timer con Reindirizzamento</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>QuoR_code</title>
+    <script src="js/tailwind.js"></script>
+    <script src="js/tone.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         html, body {
             height: 100%;
             margin: 0;
             font-family: 'Inter', sans-serif;
-            overflow: hidden;
+            overflow: hidden; /* Nasconde lo scroll */
+        }
+
+        /* Animazione per "schizzare" verso l'alto */
+        @keyframes shootUp {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-200px);
+                opacity: 0;
+            }
+        }
+
+        .animate-up {
+            animation: shootUp 0.6s ease-out forwards;
+        }
+
+        /* Animazione per il cuore che batte */
+        @keyframes beat {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.15);
+            }
+        }
+
+        .beating-heart-animation {
+            animation: beat 1.2s ease-in-out infinite;
+        }
+
+        /* Animazione per "spegnersi" al caricamento */
+        @keyframes powerDown {
+            0% {
+                background-color: #93c5fd; /* Blu chiaro "attivo" (blue-300) */
+                transform: scale(1.05);
+                opacity: 1;
+            }
+            100% {
+                background-color: #d1d5db; /* Grigio finale di bg-gray-300 */
+                transform: scale(1);
+                opacity: 0.8; /* Leggermente spento */
+            }
+        }
+
+        .animate-power-down {
+            /* Applica l'animazione di spegnimento */
+            animation: powerDown 3s ease-out forwards;
+            animation-delay: 0.5s; /* Leggero ritardo per notare l'effetto */
+        }
+        
+        .progress-dot {
+            transition: background-color 0.3s ease;
+        }
+        
+        .icon-btn {
+            position: relative;
+        }
+
+        /* Animazione a cerchi concentrici (pulse) */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1.6);
+                opacity: 0;
+            }
+        }
+
+        /* Pseudo-elemento per l'animazione */
+        .icon-btn::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid #93c5fd;
+            animation: pulse 2s ease-out infinite;
+        }
+        
+        /* Nasconde l'animazione del polso una volta cliccato */
+        .icon-btn.clicked::before {
+            display: none;
+        }
+
+
+        #image-wrapper img {
+            height: 100vh;
+            width: 100vw; /* Immagine a piena larghezza */
+            object-fit: cover;
+            flex-shrink: 0; /* Impedisce alle immagini di rimpicciolirsi */
         }
     </style>
 </head>
-<body id="main-body" class="bg-gray-100 flex items-center justify-center transition-colors duration-1000 ease-in-out">
+<body class="bg-gray-100 flex items-center justify-center">
 
-    <!-- Contenitore principale per timer e pulsante -->
-    <div id="content-wrapper" class="text-center transition-opacity duration-500">
-        <!-- Timer per il countdown -->
-        <div id="timer" class="text-8xl font-mono font-bold text-gray-800 mb-8">
-            01:00
+    <!-- Contenitore principale -->
+    <div id="main-content" class="text-center transition-opacity duration-1000 p-4 sm:p-0">
+        <!-- Scritta in cima -->
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-700 mb-8">Riattivare?</h1>
+
+        <!-- Gruppo di bottoni -->
+        <div class="flex justify-center items-center space-x-4 sm:space-x-6 mb-4">
+            <!-- Bottone Segnalibro -->
+            <button id="bookmark-btn" class="icon-btn animate-power-down flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-blue-300 text-white rounded-full shadow-md hover:bg-blue-400 transition-all duration-300">
+                <i class="fas fa-bookmark text-2xl sm:text-3xl relative z-10"></i>
+            </button>
+            <!-- Bottone Commenta -->
+            <button id="comment-btn" class="icon-btn animate-power-down flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-blue-300 text-white rounded-full shadow-md hover:bg-blue-400 transition-all duration-300">
+                <i class="fas fa-comment text-2xl sm:text-3xl relative z-10"></i>
+            </button>
+            <!-- Bottone Condividi -->
+            <button id="share-btn" class="icon-btn animate-power-down flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-blue-300 text-white rounded-full shadow-md hover:bg-blue-400 transition-all duration-300">
+                <i class="fas fa-share-alt text-2xl sm:text-3xl relative z-10"></i>
+            </button>
         </div>
 
-        <!-- Pulsante per "uscire" prima del reindirizzamento -->
-        <button id="exit-button" class="px-8 py-4 bg-gray-800 text-white font-semibold rounded-xl shadow-lg hover:bg-black focus:outline-none focus:ring-4 focus:ring-gray-400 transition-all duration-300">
-            Esci ora
+        <!-- Indicatori di Progresso -->
+        <div id="progress-dots" class="flex justify-center items-center space-x-3 mb-8 h-6">
+            <span class="progress-dot w-3 h-3 bg-gray-300 rounded-full"></span>
+            <span class="progress-dot w-3 h-3 bg-gray-300 rounded-full"></span>
+            <span class="progress-dot w-3 h-3 bg-gray-300 rounded-full"></span>
+        </div>
+        
+        <!-- Bottone "Esci" -->
+        <button id="exit-button" class="px-8 py-3 text-base sm:px-10 sm:py-4 sm:text-lg bg-red-600 text-white font-bold rounded-xl shadow-lg hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-400 transition-all duration-300">
+            Esci
         </button>
     </div>
 
+    <!-- Fullscreen Image Scroller (inizialmente nascosto) -->
+    <div id="image-scroller" class="hidden fixed inset-0 bg-black w-full h-full overflow-hidden">
+        <div id="image-wrapper" class="w-full flex flex-col">
+            <!-- Le immagini verranno iniettate qui da JS -->
+        </div>
+    </div>
+
+    <!-- Beating Heart Container (inizialmente nascosto) -->
+    <div id="heart-container" class="hidden fixed inset-0 bg-black w-full h-full flex items-center justify-center opacity-0 transition-opacity duration-1000">
+        <!-- MODIFICA: Aggiunto ID e classi per la transizione del cuore -->
+        <svg id="beating-heart-svg" class="w-36 h-36 sm:w-48 sm:h-48 text-blue-500 beating-heart-animation opacity-0 transition-opacity duration-1000" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+    </div>
+
+
     <script>
-        // --- SELEZIONE ELEMENTI ---
-        const bodyElement = document.getElementById('main-body');
-        const contentWrapper = document.getElementById('content-wrapper');
-        const timerElement = document.getElementById('timer');
+        // --- ELEMENTI GLOBALI ---
+        const mainContent = document.getElementById('main-content');
+        const progressDots = document.querySelectorAll('.progress-dot');
+
+        // --- LOGICA ICONE SUPERIORI ---
+        const iconButtons = [
+            document.getElementById('bookmark-btn'),
+            document.getElementById('comment-btn'),
+            document.getElementById('share-btn')
+        ];
+        const heartContainer = document.getElementById('heart-container');
+        const clickedButtons = new Set();
+
+        const handleIconClick = (e) => {
+            const button = e.currentTarget;
+            if (button.classList.contains('animate-up')) return;
+            
+            button.classList.add('clicked'); // Ferma l'animazione a polso
+            button.classList.remove('animate-power-down');
+            
+            const buttonIndex = iconButtons.indexOf(button);
+            if (buttonIndex !== -1) {
+                progressDots[buttonIndex].classList.remove('bg-gray-300');
+                progressDots[buttonIndex].classList.add('bg-blue-500');
+            }
+
+            Tone.start().then(() => {
+                const synth = new Tone.Synth().toDestination();
+                synth.triggerAttackRelease("C5", "8n");
+                setTimeout(() => synth.dispose(), 500);
+            });
+            
+            button.classList.remove('bg-blue-300');
+            button.classList.add('bg-green-500', 'text-white', 'animate-up');
+
+            clickedButtons.add(button.id);
+            
+            if (clickedButtons.size === 3) {
+                setTimeout(showBeatingHeart, 800); 
+            }
+        };
+
+        // MODIFICA: Nuova logica di transizione per la schermata del cuore
+        function showBeatingHeart() {
+            const heartSvg = document.getElementById('beating-heart-svg');
+
+            // 1. Avvia il fade-out del contenuto principale
+            mainContent.classList.add('opacity-0', 'pointer-events-none');
+
+            // Attendi la fine del fade-out del contenuto principale
+            setTimeout(() => {
+                mainContent.classList.add('hidden');
+                
+                // 2. Mostra il contenitore nero (heart-container) e avvia il suo fade-in
+                heartContainer.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    heartContainer.classList.remove('opacity-0');
+                });
+
+                // 3. Attendi un momento sulla schermata nera, poi fai apparire il cuore
+                setTimeout(() => {
+                    heartSvg.classList.remove('opacity-0');
+                }, 500); // Breve pausa sulla schermata nera prima che appaia il cuore
+
+            }, 1000); // Corrisponde alla durata della transizione di main-content (duration-1000)
+        }
+
+
+        iconButtons.forEach(button => button.addEventListener('click', handleIconClick));
+
+        // --- LOGICA BOTTONE "ESCI" E SCROLLER IMMAGINI ---
         const exitButton = document.getElementById('exit-button');
+        const imageScroller = document.getElementById('image-scroller');
+        const imageWrapper = document.getElementById('image-wrapper');
 
-        // --- VARIABILI DI STATO ---
-        let timeLeft = 60;
-        let timerInterval = null;
-        const redirectUrl = "https://example.com"; // Cambia con l'URL di destinazione
+        // MODIFICA: Le immagini ora vengono caricate da una cartella locale "images".
+        // Assicurati di creare una cartella chiamata "images" accanto al tuo file index.html
+        // e di inserire al suo interno le immagini (es. "image1.jpg", "image2.jpg", ...).
+        const imageUrls = [
+            'images/image_1.png',
+            'images/image_2.png',
+            'images/image_3.png',
+        ];
 
-        // Funzione per aggiornare la visualizzazione del timer
-        function updateTimerDisplay() {
-            const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-            const seconds = String(timeLeft % 60).padStart(2, '0');
-            timerElement.textContent = `${minutes}:${seconds}`;
+        let scrollSpeed = 1;
+        let scrollPosition = 0;
+        let animationFrameId = null;
+
+        function startImageScroller() {
+            mainContent.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                mainContent.classList.add('hidden');
+                imageScroller.classList.remove('hidden');
+            }, 1000); // Corrisponde alla durata della transizione
+
+            imageWrapper.innerHTML = '';
+            const imagesToLoad = [...imageUrls, ...imageUrls]; // Duplica per un loop fluido
+            imagesToLoad.forEach(url => {
+                const img = document.createElement('img');
+                img.src = url;
+                imageWrapper.appendChild(img);
+            });
+
+            animateScroll();
+
+            setInterval(() => {
+                scrollSpeed *= 1.15; // Aumenta la velocità del 15%
+            }, 2000); // ogni 2 secondi
         }
 
-        // Funzione per avviare il countdown
-        function startTimer() {
-            clearInterval(timerInterval);
-            timeLeft = 60;
-            updateTimerDisplay();
+        function animateScroll() {
+            const wrapperHeight = imageWrapper.scrollHeight / 2;
+            scrollPosition -= scrollSpeed;
 
-            timerInterval = setInterval(() => {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    updateTimerDisplay();
-                } else {
-                    clearInterval(timerInterval);
-                    timerElement.textContent = "00:00";
-                    window.location.href = redirectUrl; // Reindirizzamento automatico
-                }
-            }, 1000);
+            if (Math.abs(scrollPosition) >= wrapperHeight) {
+                scrollPosition = 0;
+            }
+            imageWrapper.style.transform = `translateY(${scrollPosition}px)`;
+            animationFrameId = requestAnimationFrame(animateScroll);
         }
 
-        // Se l'utente clicca "Esci ora", interrompi timer e reindirizza subito
-        function handleExitClick() {
-            clearInterval(timerInterval);
-            window.location.href = redirectUrl;
-        }
-
-        // --- EVENT LISTENERS ---
-        exitButton.addEventListener('click', handleExitClick);
-
-        // --- AVVIO ---
-        startTimer();
+        exitButton.addEventListener('click', startImageScroller);
     </script>
 
 </body>
 </html>
+
+
