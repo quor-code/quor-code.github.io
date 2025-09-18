@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuoR_code</title>
-    <script src="js/tailwind.js"></script>
-    <script src="js/tone.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -169,13 +169,13 @@
             </div>
         </div>
 
-        <!-- Sezione inferiore con bottone Esci -->
-<div class="content-section pb-8 flex justify-center">
-    <button id="exit-button"
-        class="px-20 py-3 md:px-28 md:py-4 text-xl md:text-2xl bg-gray-400 text-white font-bold rounded-2xl shadow-xl hover:bg-gray-500 focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-300 transform hover:scale-105">
-        Esci
-    </button>
-</div>
+        <!-- MODIFICA: Sezione inferiore con bottone Esci, più in basso e più piccolo -->
+        <div class="content-section pt-12 pb-8 flex justify-center">
+            <button id="exit-button"
+                class="px-16 py-2 md:px-20 md:py-3 text-lg md:text-xl bg-gray-400 text-white font-bold rounded-2xl shadow-xl hover:bg-gray-500 focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-300 transform hover:scale-105">
+                Esci
+            </button>
+        </div>
     </div>
 
     <!-- Fullscreen Image Scroller (inizialmente nascosto) -->
@@ -188,7 +188,6 @@
     <!-- Beating Heart Container (inizialmente nascosto) -->
     <div id="heart-container"
         class="hidden fixed inset-0 bg-black w-full h-full flex items-center justify-center opacity-0 transition-opacity duration-1000">
-        <!-- MODIFICA: Aggiunto ID e classi per la transizione del cuore -->
         <svg id="beating-heart-svg"
             class="w-40 h-40 md:w-52 md:h-52 text-blue-500 beating-heart-animation opacity-0 transition-opacity duration-1000"
             viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -231,46 +230,61 @@
             }
         }
 
-
-        // --- LOGICA ICONE SUPERIORI ---
+        // --- MODIFICA: LOGICA ICONE SUPERIORI AGGIORNATA ---
         const iconButtons = [
             document.getElementById('bookmark-btn'),
             document.getElementById('comment-btn'),
             document.getElementById('share-btn')
         ];
         const heartContainer = document.getElementById('heart-container');
-        const clickedButtons = new Set();
+        const clickedButtons = new Set(); // Usa un Set per memorizzare gli ID dei bottoni cliccati
 
         const handleIconClick = async (e) => {
             const button = e.currentTarget;
-            if (button.classList.contains('animate-up')) return;
 
+            // Se l'animazione finale è già partita, non fare nulla
+            if (iconButtons[0].classList.contains('animate-up')) return;
+
+            // Se questo specifico bottone è già stato cliccato, non fare nulla
+            if (clickedButtons.has(button.id)) return;
+
+            // Inizializza l'audio alla prima interazione
             if (!audioInitialized) {
                 await initializeAudio();
             }
+            playSound();
 
+            // 1. "Riaccendi" il bottone al suo colore blu iniziale
             button.classList.add('clicked'); // Ferma l'animazione a polso
-            button.classList.remove('animate-power-down');
+            button.classList.remove('animate-power-down'); // Rimuove lo stato di animazione "spenta"
+            
+            // Imposta esplicitamente il colore di sfondo blu, sovrascrivendo il grigio
+            // lasciato dall'animazione 'powerDown' che ha 'forwards' come fill mode.
+            button.style.backgroundColor = '#3b82f6'; // Corrisponde a Tailwind blue-500
 
+            // Aggiorna il pallino di progresso corrispondente
             const buttonIndex = iconButtons.indexOf(button);
             if (buttonIndex !== -1) {
                 progressDots[buttonIndex].classList.remove('bg-gray-300');
                 progressDots[buttonIndex].classList.add('bg-blue-500');
             }
 
-            playSound();
-
-            button.classList.remove('bg-blue-300');
-            button.classList.add('bg-green-500', 'text-white', 'animate-up');
-
+            // Aggiungi il bottone al set di quelli cliccati
             clickedButtons.add(button.id);
 
+            // 2. Controlla se tutti e tre i bottoni sono stati cliccati
             if (clickedButtons.size === 3) {
+                // Se sì, avvia l'animazione "shootUp" per tutti i bottoni
+                iconButtons.forEach(btn => {
+                    btn.classList.add('animate-up');
+                });
+
+                // Mostra il cuore pulsante dopo un breve ritardo
                 setTimeout(showBeatingHeart, 800);
             }
         };
 
-        // MODIFICA: Nuova logica di transizione per la schermata del cuore
+
         function playHeartSound() {
             if (!audioInitialized || !synth) return;
 
@@ -285,7 +299,6 @@
             }
         }
 
-        // MODIFICA: Nuova logica di transizione per la schermata del cuore
         function showBeatingHeart() {
             const heartSvg = document.getElementById('beating-heart-svg');
 
@@ -310,7 +323,6 @@
 
             }, 1000);
         }
-
 
         iconButtons.forEach(button => button.addEventListener('click', handleIconClick));
 
@@ -366,7 +378,7 @@
         function showNextImage() {
             if (loopCount >= maxLoops) {
 
-                return; // fermati dopo 2 giri
+                return; // fermati dopo 1 giro
             }
 
             currentIndex++;
@@ -394,3 +406,4 @@
 </body>
 
 </html>
+
