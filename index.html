@@ -73,8 +73,8 @@
 
         .animate-power-down {
             /* Applica l'animazione di spegnimento */
-            animation: powerDown 3s ease-out forwards;
-            animation-delay: 0.5s;
+            animation: powerDown 10s ease-out forwards;
+            animation-delay: 0s;
             /* Leggero ritardo per notare l'effetto */
         }
 
@@ -108,7 +108,7 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            border: 2px solid #93c5fd;
+            border: 10px solid #93C5FD;
             animation: pulse 2s ease-out infinite;
         }
 
@@ -170,12 +170,12 @@
         </div>
 
         <!-- Sezione inferiore con bottone Esci -->
-        <div class="content-section pb-8 flex justify-center">
-            <button id="exit-button"
-                class="px-12 py-5 md:px-16 md:py-6 text-xl md:text-2xl bg-red-600 text-white font-bold rounded-2xl shadow-xl hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-400 transition-all duration-300 transform hover:scale-105">
-                Esci
-            </button>
-        </div>
+<div class="content-section pb-8 flex justify-center">
+    <button id="exit-button"
+        class="px-20 py-3 md:px-28 md:py-4 text-xl md:text-2xl bg-gray-400 text-white font-bold rounded-2xl shadow-xl hover:bg-gray-500 focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-300 transform hover:scale-105">
+        Esci
+    </button>
+</div>
     </div>
 
     <!-- Fullscreen Image Scroller (inizialmente nascosto) -->
