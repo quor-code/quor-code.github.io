@@ -64,7 +64,7 @@
             }
 
             100% {
-                background-color: #d1d5db;
+                background-color: #000;
                 /* Grigio finale di bg-gray-300 */
                 transform: scale(1);
                 opacity: 0.8;
@@ -384,18 +384,17 @@
 		  intervalId = setInterval(showNextImage, displayTime + transitionTime);
 		}
 
-		function showNextImage() {
-		  currentIndex++;
+        function showNextImage() {
+        currentIndex++;
+        if (currentIndex >= imageUrls.length) {
+            clearInterval(intervalId);
+            return;
+        }
+        const offset = -(currentIndex * document.documentElement.clientHeight);
+        imageWrapper.style.transform = `translateY(${offset}px)`;
+        }
 
-		  if (currentIndex >= imageUrls.length) {
-			clearInterval(intervalId); // fine carosello (oppure rimetti currentIndex = 0 per loop infinito)
-			console.log("Fine slideshow");
-			return;
-		  }
-
-		  const offset = -(currentIndex * window.innerHeight);
-		  imageWrapper.style.transform = `translateY(${offset}px)`;
-		}
+        
 
 
         exitButton.addEventListener('click', startImageScroller);
