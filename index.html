@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-	<link rel="icon" type="image/png" href="images/favicon.ico" />
+    <link rel="icon" type="image/png" href="images/favicon.ico" />
 
     <style>
         html,
@@ -118,25 +118,27 @@
             display: none;
         }
 
-		
-		#image-scroller {
-		  overflow: hidden;   /* niente scroll manuale */
-		  height: 100vh;
-		  width: 100vw;
-		}
 
-		#image-wrapper {
-		  display: flex;
-		  flex-direction: column;
-		  transition: transform 0.8s ease-in-out; /* animazione fluida */
-		}
+        #image-scroller {
+            overflow: hidden;
+            /* niente scroll manuale */
+            height: 100vh;
+            width: 100vw;
+        }
 
-		#image-wrapper img {
-		  height: 100vh;
-			object-fit: contain;
-			background-color: black;
-		  flex-shrink: 0;
-		}
+        #image-wrapper {
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.8s ease-in-out;
+            /* animazione fluida */
+        }
+
+        #image-wrapper img {
+            height: 100vh;
+            object-fit: contain;
+            background-color: black;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 
@@ -268,7 +270,7 @@
             // 1. "Riaccendi" il bottone al suo colore blu iniziale
             button.classList.add('clicked'); // Ferma l'animazione a polso
             button.classList.remove('animate-power-down'); // Rimuove lo stato di animazione "spenta"
-            
+
             // Imposta esplicitamente il colore di sfondo blu, sovrascrivendo il grigio
             // lasciato dall'animazione 'powerDown' che ha 'forwards' come fill mode.
             button.style.backgroundColor = '#3b82f6'; // Corrisponde a Tailwind blue-500
@@ -358,42 +360,49 @@
         ];
 
 
-		const displayTime = 2000;  // 2 secondi visibili
-		const transitionTime = 800; // durata animazione in ms
-		let currentIndex = 0;
-		let intervalId;
+        const displayTime = 2000;  // 2 secondi visibili
+        const transitionTime = 800; // durata animazione in ms
+        let currentIndex = 0;
+        let intervalId;
 
-		function startImageScroller() {
-		  mainContent.classList.add('opacity-0', 'pointer-events-none');
-		  setTimeout(() => {
-			mainContent.classList.add('hidden');
-			imageScroller.classList.remove('hidden');
-		  }, 1000);
+        function startImageScroller() {
+            mainContent.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                mainContent.classList.add('hidden');
+                imageScroller.classList.remove('hidden');
+            }, 1000);
 
-		  imageWrapper.innerHTML = '';
-		  imageUrls.forEach(url => {
-			const img = document.createElement('img');
-			img.src = url;
-			imageWrapper.appendChild(img);
-		  });
+            imageWrapper.innerHTML = '';
+            imageUrls.forEach(url => {
+                const img = document.createElement('img');
+                img.src = url;
+                imageWrapper.appendChild(img);
+            });
 
-		  currentIndex = 0;
-		  imageWrapper.style.transform = `translateY(0)`;
+            currentIndex = 0;
+            imageWrapper.style.transform = `translateY(0)`;
 
-		  intervalId = setInterval(showNextImage, displayTime + transitionTime);
-		}
+            intervalId = setInterval(showNextImage, displayTime + transitionTime);
+        }
 
         function showNextImage() {
-        currentIndex++;
-        if (currentIndex >= imageUrls.length) {
-            clearInterval(intervalId);
-            return;
-        }
-        const offset = -(currentIndex * document.documentElement.clientHeight);
-        imageWrapper.style.transform = `translateY(${offset}px)`;
+            currentIndex++;
+            if (currentIndex >= imageUrls.length) {
+                clearInterval(intervalId);
+                return;
+            }
+
+            // Prende l'altezza della prossima immagine
+            const currentImg = imageWrapper.children[currentIndex];
+            const offset = -Array.from(imageWrapper.children)
+                .slice(0, currentIndex + 1) // tutte le immagini fino a quella attuale
+                .reduce((sum, img) => sum + img.clientHeight, 0) + currentImg.clientHeight;
+
+            // Sposta il wrapper in su dell'altezza totale accumulata
+            imageWrapper.style.transform = `translateY(${offset}px)`;
         }
 
-        
+
 
 
         exitButton.addEventListener('click', startImageScroller);
@@ -402,6 +411,3 @@
 </body>
 
 </html>
-
-
-
