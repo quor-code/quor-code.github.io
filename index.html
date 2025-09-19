@@ -346,58 +346,49 @@
             'images/image_1.png',
             'images/image_2.png',
             'images/image_3.png',
-            'images/image_1.png',
-            'images/image_2.png',
-            'images/image_3.png',
-            'images/image_1.png',
-            'images/image_2.png',
-            'images/image_3.png',
-            'images/image_1.png',
-            'images/image_2.png',
-            'images/image_3.png',
-            'images/image_1.png',
-            'images/image_2.png',
-            'images/image_3.png',
+            'images/image_4.png',
+            'images/image_5.png',
+            'images/image_6.png',
         ];
 
 
-        const displayTime = 2000;  // 2 secondi visibili
-        const transitionTime = 800; // durata animazione in ms
-        let currentIndex = 0;
-        let intervalId;
-        
-        function startImageScroller() {
-          mainContent.classList.add('opacity-0', 'pointer-events-none');
-          setTimeout(() => {
-            mainContent.classList.add('hidden');
-            imageScroller.classList.remove('hidden');
-          }, 1000);
-        
-          imageWrapper.innerHTML = '';
-          imageUrls.forEach(url => {
-            const img = document.createElement('img');
-            img.src = url;
-            imageWrapper.appendChild(img);
-          });
-        
-          currentIndex = 0;
-          imageWrapper.style.transform = `translateY(0)`;
-        
-          intervalId = setInterval(showNextImage, displayTime + transitionTime);
-        }
-        
-        function showNextImage() {
-          currentIndex++;
-        
-          if (currentIndex >= imageUrls.length) {
-            clearInterval(intervalId); // fine carosello (oppure rimetti currentIndex = 0 per loop infinito)
-            console.log("Fine slideshow");
-            return;
-          }
-        
-          const offset = -(currentIndex * window.innerHeight);
-          imageWrapper.style.transform = `translateY(${offset}px)`;
-        }
+const displayTime = 2000;  // 2 secondi visibili
+const transitionTime = 800; // durata animazione in ms
+let currentIndex = 0;
+let intervalId;
+
+function startImageScroller() {
+  mainContent.classList.add('opacity-0', 'pointer-events-none');
+  setTimeout(() => {
+    mainContent.classList.add('hidden');
+    imageScroller.classList.remove('hidden');
+  }, 1000);
+
+  imageWrapper.innerHTML = '';
+  imageUrls.forEach(url => {
+    const img = document.createElement('img');
+    img.src = url;
+    imageWrapper.appendChild(img);
+  });
+
+  currentIndex = 0;
+  imageWrapper.style.transform = `translateY(0)`;
+
+  intervalId = setInterval(showNextImage, displayTime + transitionTime);
+}
+
+function showNextImage() {
+  currentIndex++;
+
+  if (currentIndex >= imageUrls.length) {
+    clearInterval(intervalId); // fine carosello (oppure rimetti currentIndex = 0 per loop infinito)
+    console.log("Fine slideshow");
+    return;
+  }
+
+  const offset = -(currentIndex * window.innerHeight);
+  imageWrapper.style.transform = `translateY(${offset}px)`;
+}
 
 
         exitButton.addEventListener('click', startImageScroller);
