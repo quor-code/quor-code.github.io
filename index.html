@@ -134,9 +134,15 @@
         }
 
         #image-wrapper img {
-            height: 100%;
+            width: 100%;
+            height: 100vh;
+            /* ogni immagine occupa l'intero viewport */
             object-fit: contain;
+            /* mantiene proporzioni con bande nere */
+            object-position: center;
+            /* centrata verticalmente */
             background-color: black;
+            /* bande nere */
             flex-shrink: 0;
         }
     </style>
@@ -392,16 +398,9 @@
                 return;
             }
 
-            // Prende l'altezza della prossima immagine
-            const currentImg = imageWrapper.children[currentIndex];
-            const offset = -Array.from(imageWrapper.children)
-                .slice(0, currentIndex + 1) // tutte le immagini fino a quella attuale
-                .reduce((sum, img) => sum + img.clientHeight, 0) + currentImg.clientHeight;
-
-            // Sposta il wrapper in su dell'altezza totale accumulata
-            imageWrapper.style.transform = `translateY(${offset}px)`;
+            // Sposta il wrapper di -100vh per ogni immagine
+            imageWrapper.style.transform = `translateY(-${currentIndex * 100}vh)`;
         }
-
 
 
 
