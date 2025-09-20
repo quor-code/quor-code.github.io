@@ -54,29 +54,59 @@
             animation: beat 1.2s ease-in-out infinite;
         }
 
-        /* Animazione per "spegnersi" al caricamento */
-        @keyframes powerDown {
+        /* Animazioni di spegnimento personalizzate */
+        @keyframes powerDownBlue {
             0% {
-                background-color: #93c5fd;
-                /* Blu chiaro "attivo" (blue-300) */
+                background-color: #3b82f6;
                 transform: scale(1.05);
                 opacity: 1;
             }
 
             100% {
                 background-color: #000;
-                /* Grigio finale di bg-gray-300 */
                 transform: scale(1);
                 opacity: 0.8;
-                /* Leggermente spento */
             }
         }
 
-        .animate-power-down {
-            /* Applica l'animazione di spegnimento */
-            animation: powerDown 10s ease-out forwards;
-            animation-delay: 0s;
-            /* Leggero ritardo per notare l'effetto */
+        @keyframes powerDownYellow {
+            0% {
+                background-color: #facc15;
+                transform: scale(1.05);
+                opacity: 1;
+            }
+
+            100% {
+                background-color: #000;
+                transform: scale(1);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes powerDownGreen {
+            0% {
+                background-color: #22c55e;
+                transform: scale(1.05);
+                opacity: 1;
+            }
+
+            100% {
+                background-color: #000;
+                transform: scale(1);
+                opacity: 0.8;
+            }
+        }
+
+        .animate-power-down-blue {
+            animation: powerDownBlue 10s ease-out forwards;
+        }
+
+        .animate-power-down-yellow {
+            animation: powerDownYellow 10s ease-out forwards;
+        }
+
+        .animate-power-down-green {
+            animation: powerDownGreen 10s ease-out forwards;
         }
 
         .progress-dot {
@@ -101,6 +131,7 @@
         }
 
         /* Pseudo-elemento per l'animazione */
+        /* Cerchi concentrici colorati */
         .icon-btn::before {
             content: '';
             position: absolute;
@@ -109,8 +140,20 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            border: 10px solid #93C5FD;
+            border: 10px solid transparent;
             animation: pulse 2s ease-out infinite;
+        }
+
+        #bookmark-btn::before {
+            border-color: #3b82f6;
+        }
+
+        #comment-btn::before {
+            border-color: #facc15;
+        }
+
+        #share-btn::before {
+            border-color: #22c55e;
         }
 
         /* Nasconde l'animazione del polso una volta cliccato */
@@ -161,22 +204,21 @@
 
         <!-- Sezione centrale con bottoni e indicatori -->
         <div class="content-section flex-1 justify-center">
-            <!-- Gruppo di bottoni con spaziatura aumentata -->
             <div class="flex justify-center items-center space-x-8 md:space-x-12 mb-16 md:mb-20">
-                <!-- Bottone Segnalibro -->
+                <!-- Blu -->
                 <button id="bookmark-btn"
-                    class="icon-btn animate-power-down flex items-center justify-center w-20 h-20 md:w-24 md:h-24 bg-blue-300 text-white rounded-full shadow-lg hover:bg-blue-400 transition-all duration-300">
-                    <i class="fas fa-bookmark text-3xl md:text-4xl relative z-10"></i>
+                    class="icon-btn animate-power-down-blue flex items-center justify-center w-20 h-20 md:w-24 md:h-24 bg-blue-500 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300">
+                    <i class="fas fa-bookmark text-3xl md:text-4xl text-white relative z-10"></i>
                 </button>
-                <!-- Bottone Commenta -->
+                <!-- Giallo -->
                 <button id="comment-btn"
-                    class="icon-btn animate-power-down flex items-center justify-center w-20 h-20 md:w-24 md:h-24 bg-blue-300 text-white rounded-full shadow-lg hover:bg-blue-400 transition-all duration-300">
-                    <i class="fas fa-comment text-3xl md:text-4xl relative z-10"></i>
+                    class="icon-btn animate-power-down-yellow flex items-center justify-center w-20 h-20 md:w-24 md:h-24 bg-yellow-400 rounded-full shadow-lg hover:bg-yellow-500 transition-all duration-300">
+                    <i class="fas fa-comment text-3xl md:text-4xl text-white relative z-10"></i>
                 </button>
-                <!-- Bottone Condividi -->
+                <!-- Verde -->
                 <button id="share-btn"
-                    class="icon-btn animate-power-down flex items-center justify-center w-20 h-20 md:w-24 md:h-24 bg-blue-300 text-white rounded-full shadow-lg hover:bg-blue-400 transition-all duration-300">
-                    <i class="fas fa-share-alt text-3xl md:text-4xl relative z-10"></i>
+                    class="icon-btn animate-power-down-green flex items-center justify-center w-20 h-20 md:w-24 md:h-24 bg-green-500 rounded-full shadow-lg hover:bg-green-600 transition-all duration-300">
+                    <i class="fas fa-share-alt text-3xl md:text-4xl text-white relative z-10"></i>
                 </button>
             </div>
 
@@ -258,6 +300,12 @@
         const heartContainer = document.getElementById('heart-container');
         const clickedButtons = new Set(); // Usa un Set per memorizzare gli ID dei bottoni cliccati
 
+        const originalColors = {
+            "bookmark-btn": "#3b82f6",
+            "comment-btn": "#facc15",
+            "share-btn": "#22c55e"
+        };
+
         const handleIconClick = async (e) => {
             const button = e.currentTarget;
 
@@ -275,11 +323,11 @@
 
             // 1. "Riaccendi" il bottone al suo colore blu iniziale
             button.classList.add('clicked'); // Ferma l'animazione a polso
-            button.classList.remove('animate-power-down'); // Rimuove lo stato di animazione "spenta"
+            button.classList.remove('animate-power-down-blue', 'animate-power-down-yellow', 'animate-power-down-green');
 
             // Imposta esplicitamente il colore di sfondo blu, sovrascrivendo il grigio
             // lasciato dall'animazione 'powerDown' che ha 'forwards' come fill mode.
-            button.style.backgroundColor = '#3b82f6'; // Corrisponde a Tailwind blue-500
+            button.style.backgroundColor = originalColors[button.id];// Corrisponde a Tailwind blue-500
 
             // Aggiorna il pallino di progresso corrispondente
             const buttonIndex = iconButtons.indexOf(button);
@@ -288,17 +336,10 @@
                 progressDots[buttonIndex].classList.add('bg-blue-500');
             }
 
-            // Aggiungi il bottone al set di quelli cliccati
             clickedButtons.add(button.id);
 
-            // 2. Controlla se tutti e tre i bottoni sono stati cliccati
             if (clickedButtons.size === 3) {
-                // Se sì, avvia l'animazione "shootUp" per tutti i bottoni
-                iconButtons.forEach(btn => {
-                    btn.classList.add('animate-up');
-                });
-
-                // Mostra il cuore pulsante dopo un breve ritardo
+                iconButtons.forEach(btn => btn.classList.add('animate-up'));
                 setTimeout(showBeatingHeart, 800);
             }
         };
